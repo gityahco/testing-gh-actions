@@ -15,14 +15,20 @@ export default function Grid() {
 
   const handleCellClick = function (row, col) {
     const cellPosition = generateClassName(row, col);
+    if (selectedOption === 'start') {
+      setStart(cellPosition)
+    } else if (selectedOption === 'finish') {
+      setFinish(cellPosition)
+    } else if (selectedOption === 'wall') {
+      setWall((prevWall) => [...prevWall, cellPosition])
+    }
+    // selectedOption === "start"
+    //   ? setStart(cellPosition)
+    //   : selectedOption === "finish"
+    //   ? setFinish(cellPosition)
+    //   : selectedOption === "wall"
+    //   ? setWall((prevWall) => [...prevWall, cellPosition])
 
-    selectedOption === "start"
-      ? setStart(cellPosition)
-      : selectedOption === "finish"
-      ? setFinish(cellPosition)
-      : selectedOption === "wall"
-      ? setWall((prevWall) => [...prevWall, cellPosition])
-      : null;
   };
 
   const handleOptionChange = function (option) {
@@ -41,14 +47,15 @@ export default function Grid() {
         const cellStyle = {
           backgroundColor: isStart
             ? "red"
-            : isFinish
-            ? "green"
             : isWall
-            ? "gray"
-            : 'white',
+            ? "green"
+            : isFinish
+            ? "#636363"
+            : "#d1d1d1",
         };
         grid.push(
           <div
+            key={cellPosition}
             className={cellPosition}
             style={cellStyle}
             onClick={() => handleCellClick(row, col)}
