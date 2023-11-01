@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import Cell from "./Cell";
 import Menu from "./Menu";
-
 const COLUMNS = 50;
 const ROWS = 20;
 
@@ -100,85 +99,6 @@ export default function Grid() {
   const handleStart = () => {
     dijkstra();
   };
-  function dijkstra() {
-    // Create a 2D array to track the distances to each cell
-    const distances = [];
-    for (let i = 0; i < ROWS; i++) {
-      distances[i] = new Array(COLUMNS).fill(Infinity);
-    }
-
-    // Set the distance for the start cell to 0
-    const [startRow, startCol] = cellKind.start.split("-").map(Number);
-    // distances[startRow][startCol] = 0;
-    if (startRow >= 0 && startRow < ROWS && startCol >= 0 && startCol < COLUMNS) {
-      distances[startRow][startCol] = 0;
-    } else {
-      console.error("Invalid start position");
-      return;
-    }
-
-
-    // Create a priority queue with the start cell as the initial item
-    const queue = [[startRow, startCol, 0]];
-
-    // Create a set to track visited cells
-    const visited = new Set();
-
-    while (queue.length > 0) {
-      // Get the cell with the minimum distance from the priority queue
-      const [currentRow, currentCol, distance] = queue.shift();
-
-      // Check if the current cell is the finish cell
-      if (cellKind.finish === `${currentRow}-${currentCol}`) {
-        const path = [];
-        let row = currentRow;
-        let col = currentCol;
-
-        while (!(row === startRow && col === startCol)) {
-          path.unshift(`${row}-${col}`);
-          const neighbors = getNeighbors(row, col);
-
-          // Find the neighboring cell with the smallest distance
-          let minDistance = Infinity;
-          let nextRow = row;
-          let nextCol = col;
-          for (const [neighborRow, neighborCol] of neighbors) {
-            const distance = distances[neighborRow][neighborCol];
-            if (distance < minDistance) {
-              minDistance = distance;
-              nextRow = neighborRow;
-              nextCol = neighborCol;
-            }
-          }
-
-          row = nextRow;
-          col = nextCol;
-        }
-
-        // TODO: Use the path to highlight the cells in the UI
-        // You can add a CSS class to the cells in the path array to highlight them
-        // console.log("Path:", path);
-        setPath(path)
-        return;
-      }
-
-      // Explore neighboring cells
-      const neighbors = getNeighbors(currentRow, currentCol);
-      for (const [neighborRow, neighborCol] of neighbors) {
-        // Calculate the new distance to the neighbor cell
-        const newDistance = distance + 1;
-
-        // If the new distance is smaller, update the distance and add the neighbor to the queue
-        if (newDistance < distances[neighborRow][neighborCol]) {
-          distances[neighborRow][neighborCol] = newDistance;
-          queue.push([neighborRow, neighborCol, newDistance]);
-        }
-      }
-
-      // Mark the current cell as visited
-      visited.add(`${currentRow}-${currentCol}`);
-    }
-  }
 
   function getNeighbors(row, col) {
     const neighbors = [];
@@ -206,9 +126,79 @@ export default function Grid() {
     return neighbors;
   }
 
+  function dijkstra() {
+    const distances = [];
+    for (let i = 0; i < ROWS; i++) {
+      distances[i] = new Array(COLUMNS).fill(Infinity);
+    }
+
+    const [startRow, startCol] = cellKind.start.split("-").map(Number);
+    if (
+      startRow >= 0 &&
+      startRow < ROWS &&
+      startCol >= 0 &&
+      startCol < COLUMNS
+    ) {
+      distances[startRow][startCol] = 0;
+    } else {
+      console.error("Invalid start position");
+      return;
+    }
+
+    const queue = [[startRow, startCol, 0]];
+
+    const visited = new Set();
+
+    while (queue.length > 0) {
+      const [currentRow, currentCol, distance] = queue.shift();
+
+      if (cellKind.finish === `${currentRow}-${currentCol}`) {
+        const path = [];
+        let row = currentRow;
+        let col = currentCol;
+
+        while (!(row === startRow && col === startCol)) {
+          path.unshift(`${row}-${col}`);
+          const neighbors = getNeighbors(row, col);
+
+          let minDistance = Infinity;
+          let nextRow = row;
+          let nextCol = col;
+          for (const [neighborRow, neighborCol] of neighbors) {
+            const distance = distances[neighborRow][neighborCol];
+            if (distance < minDistance) {
+              minDistance = distance;
+              nextRow = neighborRow;
+              nextCol = neighborCol;
+            }
+          }
+
+          row = nextRow;
+          col = nextCol;
+        }
+
+        setPath(path);
+        return;
+      }
+
+      const neighbors = getNeighbors(currentRow, currentCol);
+      for (const [neighborRow, neighborCol] of neighbors) {
+        const newDistance = distance + 1;
+
+        if (newDistance < distances[neighborRow][neighborCol]) {
+          distances[neighborRow][neighborCol] = newDistance;
+          queue.push([neighborRow, neighborCol, newDistance]);
+        }
+      }
+
+      visited.add(`${currentRow}-${currentCol}`);
+    }
+  }
+
   return (
     <div className="Grid">
       <Menu handleOptionChange={handleOptionChange} />
+
       <div className="grid-container">{renderGrid()}</div>
       <button onClick={handleStart}>Start Algorithm</button>
     </div>
