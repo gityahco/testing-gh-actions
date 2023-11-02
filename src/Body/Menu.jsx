@@ -1,21 +1,36 @@
-import PropTypes from 'prop-types'
-export default function Menu({handleOptionChange}) {
+import PropTypes from "prop-types";
+
+const menuOptions = [
+  { label: "start", value: "start" },
+  { label: "end", value: "end" },
+  { label: "wall", value: "wall" },
+  { label: "empty", value: "empty" },
+  { label: "bomb", value: "bomb" },
+  { label: "checkpoint", value: "checkpoint" },
+];
+
+export default function Menu({ handleCellTypeChange }) {
+
+  const handleButtonClick = (option) => {
+    handleCellTypeChange(option);
+  };
+
   return (
-    <div>
-        <button onClick={() => handleOptionChange('start')}>start</button>
-        <button onClick={() => handleOptionChange('finish')}>finish</button>
-        <button onClick={() => handleOptionChange('wall')}>wall</button>
-        <button onClick={() => handleOptionChange('empty')}>empty</button>
-        {/* <button onClick={() => handleStart}>Start Algorithm</button> */}
-        {/* <button onClick={handleRandomWalls}>
-        Generate Maze
-      </button> */}
+    <div className="Menu-buttons">
+      {menuOptions.map((option) => (
+        <button
+          key={option.value}
+          className={`menu-button-${option.value}`}
+          onClick={() => handleButtonClick(option.value)}
+        >
+          {option.label}
+        </button>
+      ))}
+      {/* <button onClick={}>start Algo</button> */}
     </div>
-  )
+  );
 }
 
 Menu.propTypes = {
-    handleOptionChange: PropTypes.func.isRequired,
-    // handleRandomWalls: PropTypes.func.isRequired,
-    // mazeGenerated: PropTypes.bool.isRequired
-}
+  handleCellTypeChange: PropTypes.func.isRequired,
+};

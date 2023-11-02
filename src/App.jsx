@@ -1,10 +1,10 @@
-import Grid from "./Body/Grid";
+import Index from "./Body/Index";
 import Header from "./Head/Header";
 function App() {
   return (
     <div className="App">
       <Header />
-      <Grid />
+      <Index/>
     </div>
   );
 }

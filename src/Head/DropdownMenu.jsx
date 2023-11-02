@@ -9,7 +9,7 @@ const DropdownMenu = ({ options }) => {
   };
 
   return (
-    <div>
+    <div className='drop-down-menu'>
       <select
         className="select-dropdown"
         value={selectedOption}
