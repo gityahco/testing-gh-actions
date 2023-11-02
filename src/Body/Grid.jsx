@@ -11,6 +11,7 @@ export default function Grid() {
     wall: [],
   });
   const [path, setPath] = useState([]);
+  const [exploredCells, setExploredCells] = useState([]);
 
   const [selectedOption, setSelectedOption] = useState(null);
 
@@ -43,34 +44,25 @@ export default function Grid() {
         ),
       });
 
-      switch (selectedOption) {
-        case "start":
-          setCellKind((prevPositions) => ({
-            ...updatePositions(prevPositions),
-            start: cellPosition,
-          }));
-          break;
-        case "finish":
-          setCellKind((prevPositions) => ({
-            ...updatePositions(prevPositions),
-            finish: cellPosition,
-          }));
-          break;
-        case "wall":
-          setCellKind((prevPositions) => ({
-            ...updatePositions(prevPositions),
-            wall: prevPositions.wall.includes(cellPosition)
-              ? prevPositions.wall.filter(
-                  (position) => position !== cellPosition
-                )
-              : [...prevPositions.wall, cellPosition],
-          }));
-          break;
-        case "empty":
-          setCellKind((prevPositions) => updatePositions(prevPositions));
-          break;
-        default:
-          break;
+      if (selectedOption === "start") {
+        setCellKind((prevPositions) => ({
+          ...updatePositions(prevPositions),
+          start: cellPosition,
+        }));
+      } else if (selectedOption === "finish") {
+        setCellKind((prevPositions) => ({
+          ...updatePositions(prevPositions),
+          finish: cellPosition,
+        }));
+      } else if (selectedOption === "wall") {
+        setCellKind((prevPositions) => ({
+          ...updatePositions(prevPositions),
+          wall: prevPositions.wall.includes(cellPosition)
+            ? prevPositions.wall.filter((position) => position !== cellPosition)
+            : [...prevPositions.wall, cellPosition],
+        }));
+      } else if (selectedOption === "empty") {
+        setCellKind((prevPositions) => updatePositions(prevPositions));
       }
     },
     [generateClassName, selectedOption]
@@ -82,6 +74,7 @@ export default function Grid() {
       const col = index % COLUMNS;
       const cellPosition = generateClassName(row, col);
       const isPath = path.includes(cellPosition);
+      const isExplored = exploredCells.includes(cellPosition);
       return (
         <Cell
           cellPosition={cellPosition}
@@ -89,37 +82,37 @@ export default function Grid() {
           className={cellPosition}
           cellKind={cellKind}
           isPath={isPath}
+          isExplored={isExplored}
           handleCellClick={() => handleCellClick(row, col)}
         />
       );
     });
     return grid;
-  }, [generateClassName, path, cellKind, handleCellClick]);
+  }, [generateClassName, path, exploredCells, cellKind, handleCellClick]);
 
-  const handleStart = () => {
+  const startDijkstra = () => {
     dijkstra();
   };
-
   function getNeighbors(row, col) {
     const neighbors = [];
 
     // Check the top neighbor
-    if (row > 0) {
+    if (row > 0 && !cellKind.wall.includes(`${row - 1}-${col}`)) {
       neighbors.push([row - 1, col]);
     }
 
     // Check the right neighbor
-    if (col < COLUMNS - 1) {
+    if (col < COLUMNS - 1 && !cellKind.wall.includes(`${row}-${col + 1}`)) {
       neighbors.push([row, col + 1]);
     }
 
     // Check the bottom neighbor
-    if (row < ROWS - 1) {
+    if (row < ROWS - 1 && !cellKind.wall.includes(`${row + 1}-${col}`)) {
       neighbors.push([row + 1, col]);
     }
 
     // Check the left neighbor
-    if (col > 0) {
+    if (col > 0 && !cellKind.wall.includes(`${row}-${col - 1}`)) {
       neighbors.push([row, col - 1]);
     }
 
@@ -151,7 +144,10 @@ export default function Grid() {
 
     while (queue.length > 0) {
       const [currentRow, currentCol, distance] = queue.shift();
-
+      setExploredCells((prevExplored) => [
+        ...prevExplored,
+        `${currentRow}-${currentCol}`,
+      ]);
       if (cellKind.finish === `${currentRow}-${currentCol}`) {
         const path = [];
         let row = currentRow;
@@ -194,13 +190,11 @@ export default function Grid() {
       visited.add(`${currentRow}-${currentCol}`);
     }
   }
-
   return (
     <div className="Grid">
       <Menu handleOptionChange={handleOptionChange} />
-
+      <button onClick={startDijkstra}>Start Algorithm</button>
       <div className="grid-container">{renderGrid()}</div>
-      <button onClick={handleStart}>Start Algorithm</button>
     </div>
   );
 }

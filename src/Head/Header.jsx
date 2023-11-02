@@ -1,5 +1,5 @@
 import DropdownMenu from "./DropdownMenu";
-import handleStart from '../Body/Grid'
+
 export default function Header() {
   const Algorithms = [
     { value: "", label: "Algorithms" },
@@ -19,7 +19,6 @@ export default function Header() {
     <div className="Header">
       <DropdownMenu options={Algorithms} />
       <DropdownMenu options={Patterns} />
-      <button onClick={handleStart}>Start Visualizing</button>
     </div>
   );
 }

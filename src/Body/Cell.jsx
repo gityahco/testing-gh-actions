@@ -1,23 +1,25 @@
 import { useMemo } from "react";
 import PropTypes from "prop-types";
 
-export default function Cell({ cellPosition, cellKind, handleCellClick, isPath}) {
+export default function Cell({ cellPosition, cellKind, handleCellClick, isPath, isExplored}) {
     const isStart = cellPosition === cellKind.start;
     const isFinish = cellPosition === cellKind.finish;
     const isWall = cellKind.wall.includes(cellPosition);
     const cellStyle = useMemo(() => {
       return {
         backgroundColor: isStart
-          ? "red"
+          ? "rgb(19, 107, 19)"
           : isFinish
-          ? "green"
+          ? "hsl(357, 100%, 67%)"
           : isWall
-          ? 'blue'
+          ? 'rgb(255, 187, 0)'
           : isPath
-          ? 'yellow'
-          : "#d1d1d1",
+          ? 'hsl(219, 100%, 67%)'
+          : isExplored
+          ? 'blue'
+          : 'hsl(50, 50%, 50%)'
       };
-    }, [isStart, isFinish, isWall, isPath]);
+    }, [isStart, isFinish, isWall, isPath, isExplored]);
     return (
       <div
         key={cellPosition}
@@ -35,5 +37,6 @@ export default function Cell({ cellPosition, cellKind, handleCellClick, isPath})
       wall: PropTypes.arrayOf(PropTypes.string),
     }).isRequired,
     handleCellClick: PropTypes.func.isRequired,
-    isPath: PropTypes.bool
+    isPath: PropTypes.bool,
+    isExplored: PropTypes.bool,
   };
